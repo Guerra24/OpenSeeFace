@@ -25,7 +25,4 @@ pyinstaller facetracker.py --clean ^
     --add-binary vccorlib140.dll;. ^
     --add-binary run.bat;.
 
-echo "Deleting opencv dll"
-del dist\facetracker\cv2\opencv_videoio_*
-
 echo "Finished"

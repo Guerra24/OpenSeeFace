@@ -1,8 +1,8 @@
 name: Package using PyInstaller
 on:
   push:
-    tags:
-      - v**
+    branches: 
+      - github-actions
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Pull OpenSeeFace
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create binary
         shell: cmd
@@ -33,11 +33,11 @@ jobs:
           mv dist/facetracker ${{ env.dist-path }}
           cp -r models ${{ env.dist-path }}
 
-      - name: Upload artifact
-        uses: ./.github/actions/upload-dated-artifact
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: windows
-          path: dist # Add the parent directory to prevent a tarbomb
+          name: OpenSeeFace-windows
+          path: dist/OpenSeeFace
 
   # Files must be packed into a tar in order for file permissions to be preserved
   build-unix:
@@ -50,12 +50,10 @@ jobs:
         include:
           - name: linux
             os: ubuntu-latest
-          - name: mac
-            os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Pull OpenSeeFace
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create binary
         shell: bash
@@ -70,18 +68,8 @@ jobs:
           mv dist/facetracker ${{ env.artifact-path }}
           cp -r models ${{ env.artifact-path }}
 
-      - name: Fix permissions from PyInstaller
-        shell: bash
-        run: |
-          find ${{ env.artifact-path }} -type f -exec chmod -x {} +
-          chmod +x ${{ env.artifact-path }}/facetracker
-
-      - name: Pack files into tar
-        shell: bash
-        run: tar -cvf ${{ env.tar-path }} ${{ env.artifact-path }}
-
-      - name: Upload artifact
-        uses: ./.github/actions/upload-dated-artifact
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.name }}
-          path: ${{ env.tar-path }}
+          name: OpenSeeFace-${{ matrix.name }}
+          path: ${{ env.artifact-path }}
